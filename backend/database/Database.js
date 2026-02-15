@@ -1,38 +1,38 @@
 export class Database {
-    constructor(name) {
-        this.name = name;
-        this.tables = {};
-        console.log(`Database ${name} has been initialized`);
-    }
- 
-    createTable(tableName, ...columns) {
-        if (this.tables[tableName]) {
-            throw new Error(`Table "${tableName}" already exists`);
-        }
+  constructor(name) {
+    this.name = name;
+    this.tables = {};
+    console.log(`Database ${name} has been initialized`);
+  }
 
-        this.tables[tableName] = {
-            columns,
-            rows: []
-        };
-
-        console.log(`Table "${tableName}" created`);
+  createTable(tableName, ...columns) {
+    if (this.tables[tableName]) {
+      throw new Error(`Table "${tableName}" already exists`);
     }
 
-    insertData(tableName, row) {
-        const table = this.tables[tableName];
+    this.tables[tableName] = {
+      columns,
+      rows: [],
+    };
 
-        if (!table) {
-            throw new Error(`Table "${tableName}" does not exist`);
-        }
+    console.log(`Table "${tableName}" created`);
+  }
 
-        const keys = Object.keys(row);
-        for (const column of table.columns) {
-            if (!keys.includes(column)) {
-                throw new Error(`Missing column "${column}" in insert`);
-            }
-        }
+  insertData(tableName, row) {
+    const table = this.tables[tableName];
 
-        table.rows.push(row);
-        console.log(`Row inserted into "${tableName}"`);
+    if (!table) {
+      throw new Error(`Table "${tableName}" does not exist`);
     }
+
+    const keys = Object.keys(row);
+    for (const column of table.columns) {
+      if (!keys.includes(column)) {
+        throw new Error(`Missing column "${column}" in insert`);
+      }
+    }
+
+    table.rows.push(row);
+    console.log(`Row inserted into "${tableName}"`);
+  }
 }
