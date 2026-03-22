@@ -8,8 +8,32 @@ import {
 
 const router = express.Router();
 
+router.get("/search-by-word", (req, res) => {
+  const { dbName, tableName, word } = req.body;
+
+  if (!dbName || !tableName || !word) {
+    return res.status(400).json({ msg: "Fields are missing!" });
+  }
+
+  if (!DB[dbName]) {
+    return res.json({ msg: "Database is incorrect" });
+  }
+
+  if (!DB[dbName].tables[tableName]) {
+    return res.json({ msg: "Table is incorrect" });
+  }
+
+  const data = DB[dbName].matchWord(tableName, word);
+
+  if (data == -1) {
+    res.json({ msg: "No data exist" });
+  } else {
+    res.json({ msg: "Your Data", data: data });
+  }
+});
+
 router.get("/total-records", (req, res) => {
-  const { dbName, tableName } = req.body
+  const { dbName, tableName } = req.body;
 
   if (!dbName || !tableName) {
     return res.status(400).json({ msg: "Fields are missing!" });
@@ -19,39 +43,39 @@ router.get("/total-records", (req, res) => {
     return res.json({ msg: "Database is incorrect" });
   }
 
-  if(!DB[dbName].tables[tableName]){
-    return res.json({msg: "Table is incorrect"})
+  if (!DB[dbName].tables[tableName]) {
+    return res.json({ msg: "Table is incorrect" });
   }
 
-  const db = DB[dbName]
+  const db = DB[dbName];
 
-  const totalRows = db.totalData(tableName)
+  const totalRows = db.totalData(tableName);
 
-  return res.json({msg: `Total records in ${tableName}`, "totalRows": totalRows})
-
-})
+  return res.json({
+    msg: `Total records in ${tableName}`,
+    totalRows: totalRows,
+  });
+});
 
 router.get("/get-row", (req, res) => {
-  const { dbName, tableName, id } = req.body
+  const { dbName, tableName, id } = req.body;
 
-  if(!dbName || !tableName || !id){
-    res.json({msg: "Fields are missing!"})
+  if (!dbName || !tableName || !id) {
+    res.json({ msg: "Fields are missing!" });
   }
 
-  if(!DB[dbName] || !DB[dbName].tables[tableName]){
-    res.json({msg: "Incorrect data"})
+  if (!DB[dbName] || !DB[dbName].tables[tableName]) {
+    res.json({ msg: "Incorrect data" });
   }
 
-  const row = DB[dbName].searchData(tableName, id)
+  const row = DB[dbName].searchData(tableName, id);
 
-  if(row == -1){
-    res.json({msg: `No data for this id: ${id}`})
-  }else{
-    res.json({msg: "Your Data", data: row})
+  if (row == -1) {
+    res.json({ msg: `No data for this id: ${id}` });
+  } else {
+    res.json({ msg: "Your Data", data: row });
   }
-
-
-})
+});
 
 router.post("/create-database", (req, res) => {
   const { dbName } = req.body;
