@@ -6,3 +6,9 @@
 node_modules
 .env*
 .DS_Store
+
+#Nothing
+Main.java
+Main.class
+Nothing.java
+Nothing.class

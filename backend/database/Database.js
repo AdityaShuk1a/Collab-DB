@@ -5,34 +5,81 @@ export class Database {
     console.log(`Database ${name} has been initialized`);
   }
 
-  createTable(tableName, ...columns) {
+  createTable(tableName, columns) {
     if (this.tables[tableName]) {
       throw new Error(`Table "${tableName}" already exists`);
     }
-
+    columns["id"] = "number"
     this.tables[tableName] = {
       columns,
+      id: 0,
       rows: [],
     };
 
     console.log(`Table "${tableName}" created`);
   }
 
+  totalData(tableName){
+    const table = this.tables[tableName];
+    return table.id
+  }
+
+  searchData(tableName, id){
+    const table = this.tables[tableName]
+    if(!table){
+      throw new Error(`Table ${tableName} does not exist`)
+    }
+
+    var low = 0;
+    var high = table.id - 1;
+    const rows = table.rows
+
+    while(low <= high){
+      const mid = Math.floor((low + high) / 2);
+
+      if(rows[mid].id == id){
+        return rows[mid];
+      }
+      else if (rows[mid].id < id) {
+        low = mid + 1;
+      } else {
+        high = mid - 1;
+      }
+    }
+
+    return -1
+  }
+
   insertData(tableName, row) {
     const table = this.tables[tableName];
-
+    row.id = table.id
     if (!table) {
       throw new Error(`Table "${tableName}" does not exist`);
     }
 
-    const keys = Object.keys(row);
-    for (const column of table.columns) {
-      if (!keys.includes(column)) {
-        throw new Error(`Missing column "${column}" in insert`);
+    const schema = table.columns;
+
+    for (const column in schema) {
+      if (!(column in row)) {
+        throw new Error(`Column ${column} does not exist`);
+      }
+    }
+    for (const key of Object.keys(row)) {
+      if (!schema[key]) {
+        throw new Error(`Unknown column "${key}"`);
+      }
+    }
+    for (const key in row) {
+      const expectedType = schema[key];
+      const actualType = typeof row[key];
+
+      if (expectedType !== actualType) {
+        throw new Error(`Type does not match`);
       }
     }
 
     table.rows.push(row);
+    table.id += 1;
     console.log(`Row inserted into "${tableName}"`);
   }
 }

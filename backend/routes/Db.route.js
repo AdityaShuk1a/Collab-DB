@@ -8,6 +8,51 @@ import {
 
 const router = express.Router();
 
+router.get("/total-records", (req, res) => {
+  const { dbName, tableName } = req.body
+
+  if (!dbName || !tableName) {
+    return res.status(400).json({ msg: "Fields are missing!" });
+  }
+
+  if (!DB[dbName]) {
+    return res.json({ msg: "Database is incorrect" });
+  }
+
+  if(!DB[dbName].tables[tableName]){
+    return res.json({msg: "Table is incorrect"})
+  }
+
+  const db = DB[dbName]
+
+  const totalRows = db.totalData(tableName)
+
+  return res.json({msg: `Total records in ${tableName}`, "totalRows": totalRows})
+
+})
+
+router.get("/get-row", (req, res) => {
+  const { dbName, tableName, id } = req.body
+
+  if(!dbName || !tableName || !id){
+    res.json({msg: "Fields are missing!"})
+  }
+
+  if(!DB[dbName] || !DB[dbName].tables[tableName]){
+    res.json({msg: "Incorrect data"})
+  }
+
+  const row = DB[dbName].searchData(tableName, id)
+
+  if(row == -1){
+    res.json({msg: `No data for this id: ${id}`})
+  }else{
+    res.json({msg: "Your Data", data: row})
+  }
+
+
+})
+
 router.post("/create-database", (req, res) => {
   const { dbName } = req.body;
 
@@ -28,7 +73,7 @@ router.post("/create-database", (req, res) => {
 router.post("/create-table", verifyTable, (req, res) => {
   const { dbName, tableName, Columns } = req.body;
 
-  DB[dbName].createTable(tableName, ...Columns);
+  DB[dbName].createTable(tableName, Columns);
 
   res.json({ msg: "table has been created" });
 });
